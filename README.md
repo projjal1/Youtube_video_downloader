@@ -9,7 +9,7 @@ Windows(Currently)
 <b>Requirement</b>:
 Python version >3
 
-<b>Instructions<b>:
+<b>Instructions</b>:
 After install python 3 run setup_module.bat from the base directory.
 This will install all the required libraries
 
