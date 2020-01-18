@@ -6,16 +6,16 @@ This is a Tkinter GUI based implementation to fetch and download content from Yo
 <b>Supported OS</b>:
 Windows(Currently)
 
-Requirement:
+<b>Requirement</b>:
 Python version >3
 
-Instructions:
+<b>Instructions<b>:
 After install python 3 run setup_module.bat from the base directory.
 This will install all the required libraries
 
-Start instructions:
+<b>Start instructions</b>:
 Execute or double-click on run.bat to launch the app.
 
-Note:
+<b>Note</b>:
 Internet connection is mandatory.
 In case connection is lost while downloading content just terminate it from Task Manager as app will freeze.
