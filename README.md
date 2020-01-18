@@ -3,7 +3,7 @@ This is a web scrapper tool that downloads Youtube .mp4 and .mp3 files in highes
 
 This is a Tkinter GUI based implementation to fetch and download content from Youtube.
 
-Supported OS:
+<b>Supported OS</b>:
 Windows(Currently)
 
 Requirement:
@@ -18,4 +18,4 @@ Execute or double-click on run.bat to launch the app.
 
 Note:
 Internet connection is mandatory.
-In case connection is lost while downloadin content just terminate it from Task Manager as app will freeze.
+In case connection is lost while downloading content just terminate it from Task Manager as app will freeze.
