@@ -1,0 +1,257 @@
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1033{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\colortbl ;\red0\green0\blue255;}
+{\*\generator Riched20 10.0.18362}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs22\lang9 youtube-dl coding conventions\par
+\par
+This section introduces a guide lines for writing idiomatic, robust and future-proof extractor code.\par
+\par
+Extractors are very fragile by nature since they depend on the layout of the source data provided by 3rd party media hosters out of your control and this layout tends to change. As an extractor implementer your task is not only to write code that will extract media links and metadata correctly but also to minimize dependency on the source's layout and even to make the code foresee potential future changes and be ready for that. This is important because it will allow the extractor not to break on minor layout changes thus keeping old youtube-dl versions working. Even though this breakage issue is easily fixed by emitting a new version of youtube-dl with a fix incorporated, all the previous versions become broken in all repositories and distros' packages that may not be so prompt in fetching the update from us. Needless to say, some non rolling release distros may never receive an update at all.\par
+Mandatory and optional metafields\par
+\par
+For extraction to work youtube-dl relies on metadata your extractor extracts and provides to youtube-dl expressed by an information dictionary or simply info dict. Only the following meta fields in the info dict are considered mandatory for a successful extraction process by youtube-dl:\par
+\par
+    id (media identifier)\par
+    title (media title)\par
+    url (media download URL) or formats\par
+\par
+In fact only the last option is technically mandatory (i.e. if you can't figure out the download location of the media the extraction does not make any sense). But by convention youtube-dl also treats id and title as mandatory. Thus the aforementioned metafields are the critical data that the extraction does not make any sense without and if any of them fail to be extracted then the extractor is considered completely broken.\par
+\par
+Any field apart from the aforementioned ones are considered optional. That means that extraction should be tolerant to situations when sources for these fields can potentially be unavailable (even if they are always available at the moment) and future-proof in order not to break the extraction of general purpose mandatory fields.\par
+Example\par
+\par
+Say you have some source dictionary meta that you've fetched as JSON with HTTP request and it has a key summary:\par
+\par
+meta = self._download_json(url, video_id)\par
+\par
+Assume at this point meta's layout is:\par
+\par
+\{\par
+    ...\par
+    "summary": "some fancy summary text",\par
+    ...\par
+\}\par
+\par
+Assume you want to extract summary and put it into the resulting info dict as description. Since description is an optional meta field you should be ready that this key may be missing from the meta dict, so that you should extract it like:\par
+\par
+description = meta.get('summary')  # correct\par
+\par
+and not like:\par
+\par
+description = meta['summary']  # incorrect\par
+\par
+The latter will break extraction process with KeyError if summary disappears from meta at some later time but with the former approach extraction will just go ahead with description set to None which is perfectly fine (remember None is equivalent to the absence of data).\par
+\par
+Similarly, you should pass fatal=False when extracting optional data from a webpage with _search_regex, _html_search_regex or similar methods, for instance:\par
+\par
+description = self._search_regex(\par
+    r'<span[^>]+id="title"[^>]*>([^<]+)<',\par
+    webpage, 'description', fatal=False)\par
+\par
+With fatal set to False if _search_regex fails to extract description it will emit a warning and continue extraction.\par
+\par
+You can also pass default=<some fallback value>, for example:\par
+\par
+description = self._search_regex(\par
+    r'<span[^>]+id="title"[^>]*>([^<]+)<',\par
+    webpage, 'description', default=None)\par
+\par
+On failure this code will silently continue the extraction with description set to None. That is useful for metafields that may or may not be present.\par
+Provide fallbacks\par
+\par
+When extracting metadata try to do so from multiple sources. For example if title is present in several places, try extracting from at least some of them. This makes it more future-proof in case some of the sources become unavailable.\par
+Example\par
+\par
+Say meta from the previous example has a title and you are about to extract it. Since title is a mandatory meta field you should end up with something like:\par
+\par
+title = meta['title']\par
+\par
+If title disappears from meta in future due to some changes on the hoster's side the extraction would fail since title is mandatory. That's expected.\par
+\par
+Assume that you have some another source you can extract title from, for example og:title HTML meta of a webpage. In this case you can provide a fallback scenario:\par
+\par
+title = meta.get('title') or self._og_search_title(webpage)\par
+\par
+This code will try to extract from meta first and if it fails it will try extracting og:title from a webpage.\par
+Regular expressions\par
+Don't capture groups you don't use\par
+\par
+Capturing group must be an indication that it's used somewhere in the code. Any group that is not used must be non capturing.\par
+Example\par
+\par
+Don't capture id attribute name here since you can't use it for anything anyway.\par
+\par
+Correct:\par
+\par
+r'(?:id|ID)=(?P<id>\\d+)'\par
+\par
+Incorrect:\par
+\par
+r'(id|ID)=(?P<id>\\d+)'\par
+\par
+Make regular expressions relaxed and flexible\par
+\par
+When using regular expressions try to write them fuzzy, relaxed and flexible, skipping insignificant parts that are more likely to change, allowing both single and double quotes for quoted values and so on.\par
+Example\par
+\par
+Say you need to extract title from the following HTML code:\par
+\par
+<span style="position: absolute; left: 910px; width: 90px; float: right; z-index: 9999;" class="title">some fancy title</span>\par
+\par
+The code for that task should look similar to:\par
+\par
+title = self._search_regex(\par
+    r'<span[^>]+class="title"[^>]*>([^<]+)', webpage, 'title')\par
+\par
+Or even better:\par
+\par
+title = self._search_regex(\par
+    r'<span[^>]+class=(["\\'])title\\1[^>]*>(?P<title>[^<]+)',\par
+    webpage, 'title', group='title')\par
+\par
+Note how you tolerate potential changes in the style attribute's value or switch from using double quotes to single for class attribute:\par
+\par
+The code definitely should not look like:\par
+\par
+title = self._search_regex(\par
+    r'<span style="position: absolute; left: 910px; width: 90px; float: right; z-index: 9999;" class="title">(.*?)</span>',\par
+    webpage, 'title', group='title')\par
+\par
+Long lines policy\par
+\par
+There is a soft limit to keep lines of code under 80 characters long. This means it should be respected if possible and if it does not make readability and code maintenance worse.\par
+\par
+For example, you should never split long string literals like URLs or some other often copied entities over multiple lines to fit this limit:\par
+\par
+Correct:\par
+\par
+'{{\field{\*\fldinst{HYPERLINK https://www.youtube.com/watch?v=FqZTN594JQw&list=PLMYEtVRpaqY00V9W81Cwmzp6N6vZqfUKD4 }}{\fldrslt{https://www.youtube.com/watch?v=FqZTN594JQw&list=PLMYEtVRpaqY00V9W81Cwmzp6N6vZqfUKD4\ul0\cf0}}}}\f0\fs22 '\par
+\par
+Incorrect:\par
+\par
+'{{\field{\*\fldinst{HYPERLINK https://www.youtube.com/watch?v=FqZTN594JQw&list= }}{\fldrslt{https://www.youtube.com/watch?v=FqZTN594JQw&list=\ul0\cf0}}}}\f0\fs22 '\par
+'PLMYEtVRpaqY00V9W81Cwmzp6N6vZqfUKD4'\par
+\par
+Inline values\par
+\par
+Extracting variables is acceptable for reducing code duplication and improving readability of complex expressions. However, you should avoid extracting variables used only once and moving them to opposite parts of the extractor file, which makes reading the linear flow difficult.\par
+Example\par
+\par
+Correct:\par
+\par
+title = self._html_search_regex(r'<title>([^<]+)</title>', webpage, 'title')\par
+\par
+Incorrect:\par
+\par
+TITLE_RE = r'<title>([^<]+)</title>'\par
+# ...some lines of code...\par
+title = self._html_search_regex(TITLE_RE, webpage, 'title')\par
+\par
+Collapse fallbacks\par
+\par
+Multiple fallback values can quickly become unwieldy. Collapse multiple fallback values into a single expression via a list of patterns.\par
+Example\par
+\par
+Good:\par
+\par
+description = self._html_search_meta(\par
+    ['og:description', 'description', 'twitter:description'],\par
+    webpage, 'description', default=None)\par
+\par
+Unwieldy:\par
+\par
+description = (\par
+    self._og_search_description(webpage, default=None)\par
+    or self._html_search_meta('description', webpage, default=None)\par
+    or self._html_search_meta('twitter:description', webpage, default=None))\par
+\par
+Methods supporting list of patterns are: _search_regex, _html_search_regex, _og_search_property, _html_search_meta.\par
+Trailing parentheses\par
+\par
+Always move trailing parentheses after the last argument.\par
+Example\par
+\par
+Correct:\par
+\par
+    lambda x: x['ResultSet']['Result'][0]['VideoUrlSet']['VideoUrl'],\par
+    list)\par
+\par
+Incorrect:\par
+\par
+    lambda x: x['ResultSet']['Result'][0]['VideoUrlSet']['VideoUrl'],\par
+    list,\par
+)\par
+\par
+Use convenience conversion and parsing functions\par
+\par
+Wrap all extracted numeric data into safe functions from youtube_dl/utils.py: int_or_none, float_or_none. Use them for string to number conversions as well.\par
+\par
+Use url_or_none for safe URL processing.\par
+\par
+Use try_get for safe metadata extraction from parsed JSON.\par
+\par
+Use unified_strdate for uniform upload_date or any YYYYMMDD meta field extraction, unified_timestamp for uniform timestamp extraction, parse_filesize for filesize extraction, parse_count for count meta fields extraction, parse_resolution, parse_duration for duration extraction, parse_age_limit for age_limit extraction.\par
+\par
+Explore youtube_dl/utils.py for more useful convenience functions.\par
+More examples\par
+Safely extract optional description from parsed JSON\par
+\par
+description = try_get(response, lambda x: x['result']['video'][0]['summary'], compat_str)\par
+\par
+Safely extract more optional metadata\par
+\par
+video = try_get(response, lambda x: x['result']['video'][0], dict) or \{\}\par
+description = video.get('summary')\par
+duration = float_or_none(video.get('durationMs'), scale=1000)\par
+view_count = int_or_none(video.get('views'))\par
+\par
+EMBEDDING YOUTUBE-DL\par
+\par
+youtube-dl makes the best effort to be a good command-line program, and thus should be callable from any programming language. If you encounter any problems parsing its output, feel free to create a report.\par
+\par
+From a Python program, you can embed youtube-dl in a more powerful fashion, like this:\par
+\par
+from __future__ import unicode_literals\par
+import youtube_dl\par
+\par
+ydl_opts = \{\}\par
+with youtube_dl.YoutubeDL(ydl_opts) as ydl:\par
+    ydl.download(['https://www.youtube.com/watch?v=BaW_jenozKc'])\par
+\par
+Most likely, you'll want to use various options. For a list of options available, have a look at youtube_dl/YoutubeDL.py. For a start, if you want to intercept youtube-dl's output, set a logger object.\par
+\par
+Here's a more complete example of a program that outputs only errors (and a short message after the download is finished), and downloads/converts the video to an mp3 file:\par
+\par
+from __future__ import unicode_literals\par
+import youtube_dl\par
+\par
+\par
+class MyLogger(object):\par
+    def debug(self, msg):\par
+        pass\par
+\par
+    def warning(self, msg):\par
+        pass\par
+\par
+    def error(self, msg):\par
+        print(msg)\par
+\par
+\par
+def my_hook(d):\par
+    if d['status'] == 'finished':\par
+        print('Done downloading, now converting ...')\par
+\par
+\par
+ydl_opts = \{\par
+    'format': 'bestaudio/best',\par
+    'postprocessors': [\{\par
+        'key': 'FFmpegExtractAudio',\par
+        'preferredcodec': 'mp3',\par
+        'preferredquality': '192',\par
+    \}],\par
+    'logger': MyLogger(),\par
+    'progress_hooks': [my_hook],\par
+\}\par
+with youtube_dl.YoutubeDL(ydl_opts) as ydl:\par
+    ydl.download(['https://www.youtube.com/watch?v=BaW_jenozKc'])\par
+}
+ 
