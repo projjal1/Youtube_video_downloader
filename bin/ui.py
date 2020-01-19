@@ -61,6 +61,8 @@ def check(url):
 def download():
     value1.set("")
     value2.set("")
+    value4.set("")
+    
     root.update_idletasks()
 
     opt=val.get()
