@@ -27,3 +27,9 @@ Uncapped download speeds.(As on my computer I receive download speeds of 6mbps)
 Flexibility of choosing location to download
 
 By modifying the code one can scrap any site for videos.
+
+<b>Updates:</b>
+Fixed lot of errors in code.
+<br>
+Fixed progress bar problems.
+<br>
