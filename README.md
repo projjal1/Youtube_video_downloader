@@ -10,8 +10,17 @@ Windows(Currently)
 Python version >3
 
 <b>Instructions</b>:
-After install python 3 run setup_module.bat from the base directory.
-This will install all the required libraries
+<br>
+Install python3 (ignore if done)
+<br>
+Ensure pip is installed by typing on cmd (pip)
+<br>
+Run setup_module.bat from the base directory. (this will install all modules)
+<br>
+Now copy ffmpeg.exe to base dir of python folder's script.
+<br>
+Usually this is C:\Users\Projjal Gop\Anaconda3\Scripts for conda, and C:\Users\Projjal Gop\Python3\Scripts for python(idle). 
+
 
 <b>Start instructions</b>:
 Execute or double-click on run.bat to launch the app.
@@ -39,9 +48,5 @@ Fixed progress bar problems.
 Added error codes and logs to code.
 <br>
 Users can download Facebook Watch videos, Souncloud mp3, and other stuff from sites which are accessible by software.
-
-<b>Still not fixed</b>
 <br>
-Tkinter interface may become unresponsive at times but background processes continue.
-<br>
-Working on multithreading solutions.
+Fixed unresponsiveness.
