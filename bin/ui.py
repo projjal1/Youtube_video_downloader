@@ -6,17 +6,18 @@ import youtube_dl
 from tkinter.ttk import *
 from tkinter import filedialog
 import threading as t
+import socket
 
 root=Tk()
 root.title("Youtube Video Downloader")
 
 track=IntVar() #Keeps track of music content no.
-type=StringVar()  #Track of single vid/playlist/channel
 
 value1=StringVar()
 value2=StringVar()
 value3=StringVar()
 value4=StringVar()  #Error tracking code
+value5=StringVar()  #Connection status
 
 progress=Progressbar(root, orient = HORIZONTAL,length = 250, mode = 'determinate')
 
@@ -45,16 +46,13 @@ def my_hook(d):
 #Checks url for playlist, channel, or single video
 def check(url):
     if 'user' in url or 'channel' in url:
-        type.set('channel')
         value3.set("Downloading complete channel's content")
     elif 'playlist' in url:
-        type.set('playlist')
         value3.set("Downloading complete playlist content")
     else:
         if '&list' in url:
             pos=url.index('&list')
             url=url[:pos]
-        type.set('single')
         value3.set("Single Video download content")
     root.update_idletasks() 
     return url
@@ -114,6 +112,17 @@ def download_handler():
     thread=t.Thread(target=download)
     thread.start()
 
+#Checks for internet connection
+def check_connection():
+    try:
+        socket.create_connection(("www.google.com",80))
+        value5.set("Connected to internet")
+    except:
+        value5.set("Lost Connection")
+    root.update_idletasks()
+    root.after(1000,check_connection)
+
+
 Label(root,text="This software is OpenSource and made for distribution",font="bold",background="yellow",foreground="red").grid(row=1,columnspan=2)
 
 img1 = ImageTk.PhotoImage(Image.open("logo.png").resize((500,250)))
@@ -143,6 +152,9 @@ progress.grid(row=12,column=1)
 
 Label(root,textvariable=value2,foreground="red",font="bold").grid(row=13,pady=10,columnspan=2)
 
-Label(root,text="@Copyright Under GNU license. Made by Projjal Gop using Open Frameworks.",font="bold").grid(row=14,pady=30,columnspan=2)
+Label(root,textvariable=value5,foreground="blue",font="bold").grid(row=14,pady=10,columnspan=2)
 
+Label(root,text="@Copyright Under GNU license. Made by Projjal Gop using Open Frameworks.",font="bold").grid(row=15,pady=30,columnspan=2)
+
+root.after(1,check_connection)
 root.mainloop()
