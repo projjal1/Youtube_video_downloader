@@ -44,4 +44,4 @@ Users can download Facebook Watch videos, Souncloud mp3, and other stuff from si
 <br>
 Tkinter interface may become unresponsive at times but background processes continue.
 <br>
-Worling on multithreading means.
+Working on multithreading solutions.
