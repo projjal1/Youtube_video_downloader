@@ -27,8 +27,6 @@ Execute or double-click on run.bat to launch the app.
 <b>Note</b>:
 <br>
 Internet connection is mandatory.
-<br>
-In case connection is lost while downloading content just terminate it from Task Manager as app will freeze.
 
 <b>Features of this software</b>:
 <br>
