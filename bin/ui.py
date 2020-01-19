@@ -5,7 +5,7 @@ import os
 import youtube_dl
 from tkinter.ttk import *
 from tkinter import filedialog
-
+import threading as t
 
 root=Tk()
 root.title("Youtube Video Downloader")
@@ -109,6 +109,11 @@ def folder_select():
     folder_dir=filedialog.askdirectory()
     return folder_dir
 
+#Multithread handler to prevent unresponsiveness
+def download_handler():
+    thread=t.Thread(target=download)
+    thread.start()
+
 Label(root,text="This software is OpenSource and made for distribution",font="bold",background="yellow",foreground="red").grid(row=1,columnspan=2)
 
 img1 = ImageTk.PhotoImage(Image.open("logo.png").resize((500,250)))
@@ -123,7 +128,7 @@ e1.grid(row=5,columnspan=2,pady=5)
 
 Label(root,textvariable=value4,foreground="red").grid(row=7,pady=10,columnspan=2)
 
-Button(text="Start to Download files",command=download).grid(row=8,columnspan=2,pady=20)
+Button(text="Start to Download files",command=download_handler).grid(row=8,columnspan=2,pady=20)
 
 val=IntVar()
 r1=Radiobutton(root,text="Audio only",value=1,variable=val).grid(row=9,columnspan=1)
