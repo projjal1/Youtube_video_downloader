@@ -31,6 +31,7 @@ Flexibility of choosing location to download
 By modifying the code one can scrap any site for videos.
 
 <b>Updates:</b>
+<br>
 Fixed lot of errors in code.
 <br>
 Fixed progress bar problems.
