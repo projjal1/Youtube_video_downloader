@@ -28,7 +28,7 @@ class MyLogger(object):
     def warning(self, msg):
         pass
     def error(self, msg):
-        value4.set("Video is blocked or internet lost. Cannot proceed further.")
+        value4.set("Video is blocked. Cannot proceed further.")
         root.update_idletasks()
 
 #Hook class to control events
