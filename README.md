@@ -19,7 +19,7 @@ Run setup_module.bat from the base directory. (this will install all modules)
 <br>
 Now copy ffmpeg.exe to base dir of python folder's script.
 <br>
-Usually this is C:\Users\user-name\Anaconda3\Scripts for conda, and C:\Users\user-name\AppData\Local\Programs\Python\Python3<version>\Scripts for python(idle). 
+Usually this is <b>C:\Users\user-name\Anaconda3\Scripts</b> for conda, and <b>C:\Users\username\AppData\Local\Programs\Python\Python3<version>\Scripts</b> for python(idle). 
 
 <b>Start instructions</b>:
 Execute or double-click on run.bat to launch the app.
