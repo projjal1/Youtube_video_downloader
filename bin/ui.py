@@ -127,10 +127,10 @@ def check_connection():
 
 Label(root,text="This software is OpenSource and made for distribution",font="bold",background="yellow",foreground="red").grid(row=1,columnspan=2)
 
-img1 = ImageTk.PhotoImage(Image.open("logo.png").resize((500,250)))
+img1 = ImageTk.PhotoImage(Image.open("logo.png"))
 panel1 = Label(root, image = img1).grid(row=2,column=0)
 
-img2 = ImageTk.PhotoImage(Image.open("dn.png").resize((300,150)))
+img2 = ImageTk.PhotoImage(Image.open("dn.png"))
 panel2=Label(root,image=img2).grid(row=2,column=1)
 
 Label(root,text="Enter the url of playlist,channel or single video below",font="bold",foreground="blue").grid(row=4,columnspan=2)
